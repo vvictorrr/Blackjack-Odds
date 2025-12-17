@@ -26,7 +26,7 @@ def best_hand_value(hand):
 def simulate_dealer(dealer_hand, deck, hit_on_soft17=True):
     total, soft = best_hand_value(dealer_hand)
 
-    if total > 17 or (total == 17 and not soft) or (total == 17 and not hit_on_soft17 and soft):
+    if total > 17 or (total == 17 and (not soft or not hit_on_soft17)):
         # base case: dealer stands here. Return distribution mass 1 on this total.
         return {total: 1.0}
     
@@ -37,8 +37,6 @@ def simulate_dealer(dealer_hand, deck, hit_on_soft17=True):
         # but handle gracefully: treat current total as final.
         return {total: 1.0}
     else:
-        outcomes = {}
-        n = len(deck)
         for i in range(n):
             new_card = deck[i]
             new_hand = dealer_hand.copy() + [new_card]
@@ -69,9 +67,10 @@ def main():
         remaining.remove(card)
 
     my_total, _ = best_hand_value(my_hand)
-    if 1 in my_hand and my_total + 10 <= 21:
-        my_total += 10
 
+    if my_total > 21:
+        print("You busted! Loss probability: 100%")
+        return
     lose = 0
     tie = 0
     win = 0
